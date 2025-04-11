@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Pizzas Algoritmos</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
+</head>
+<body>
+  <label for="s">Rebanadas:</label>
+  <input type="number" id="s" value="8" min="1" />
+  <button onclick="redraw()">Dibujar</button>
+  <script>
+    let r = 80, cy = 150, cx = [];
+
+    function setup() {
+      createCanvas(600, 300);
+      textAlign(CENTER);
+      textSize(14);
+      noLoop();
+      cx = [100, 300, 500];
+    }
+
+    function draw() {
+      background(255);
+      let n = parseInt(document.getElementById("s").value);
+      fill(0); noStroke();
+      text("Punto-Pendiente", cx[0], cy - r - 20);
+      text("DDA", cx[1], cy - r - 20);
+      text("Bresenham", cx[2], cy - r - 20);
+
+      pizza(cx[0], cy, r, n, l1, color(255, 0, 0));
+      pizza(cx[1], cy, r, n, l2, color(0, 0, 255));
+      pizza(cx[2], cy, r, n, l3, color(0, 200, 0));
+    }
+
+    function pizza(x, y, rad, n, f, c) {
+      fill(255, 220, 150);
+      stroke(0);
+      circle(x, y, rad * 2);
+      stroke(c);
+      for (let i = 0; i < n; i++) {
+        let a = TWO_PI * i / n;
+        let x1 = x + rad * cos(a);
+        let y1 = y + rad * sin(a);
+        f(x, y, x1, y1);
+      }
+    }
+
+    function l1(x0, y0, x1, y1) {
+      let dx = x1 - x0, dy = y1 - y0;
+      if (abs(dx) > abs(dy)) {
+        if (x0 > x1) [x0, y0, x1, y1] = [x1, y1, x0, y0];
+        let m = dy / dx;
+        for (let x = x0; x <= x1; x++) {
+          let y = y0 + m * (x - x0);
+          point(x, y);
+        }
+      } else {
+        if (y0 > y1) [x0, y0, x1, y1] = [x1, y1, x0, y0];
+        let m = dx / dy;
+        for (let y = y0; y <= y1; y++) {
+          let x = x0 + m * (y - y0);
+          point(x, y);
+        }
+      }
+    }
+
+    function l2(x0, y0, x1, y1) {
+      let dx = x1 - x0, dy = y1 - y0;
+      let st = max(abs(dx), abs(dy));
+      let xi = dx / st, yi = dy / st;
+      let x = x0, y = y0;
+      for (let i = 0; i <= st; i++) {
+        point(round(x), round(y));
+        x += xi; y += yi;
+      }
+    }
+
+    function l3(x0, y0, x1, y1) {
+      x0 = round(x0); y0 = round(y0);
+      x1 = round(x1); y1 = round(y1);
+      let dx = abs(x1 - x0), dy = abs(y1 - y0);
+      let sx = x0 < x1 ? 1 : -1, sy = y0 < y1 ? 1 : -1;
+      let err = dx - dy;
+      while (true) {
+        point(x0, y0);
+        if (x0 === x1 && y0 === y1) break;
+        let e2 = 2 * err;
+        if (e2 > -dy) { err -= dy; x0 += sx; }
+        if (e2 < dx) { err += dx; y0 += sy; }
+      }
+    }
+  </script>
+</body>
+</html>
